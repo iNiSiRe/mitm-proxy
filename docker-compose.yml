@@ -1,0 +1,26 @@
+version: "3"
+services:
+
+  server:
+    build:
+      dockerfile: docker/Dockerfile
+      context: ./
+      args:
+        - "XDEBUG=0"
+    ports:
+      - "9090:9090"
+    volumes:
+      - .:/var/www/html
+      - ./var/tmp:/tmp
+#      - ./docker/php/xdebug.ini:/usr/local/etc/php/conf.d/xdebug.ini
+    user: www-data
+    command: ["/usr/local/bin/php", "./bin/server.php"]
+
+  cli:
+    build:
+      dockerfile: docker/Dockerfile
+      context: ./
+    volumes:
+      - .:/var/www/html
+      - ./var/tmp:/tmp
+    user: www-data
