@@ -1,26 +1,20 @@
-FROM php:7.3-fpm AS base
+FROM php:8.2-cli AS base
 
 # Install additional soft
 RUN export DEBIAN_FRONTEND=noninteractive && \
     apt-get -qq update && \
-    apt-get -y install zip unzip git zlib1g-dev libmemcached-dev supervisor git libevent-dev \
+    apt-get -y install zip unzip git git \
     make \
     libssl-dev \
-    inetutils-ping
+    inetutils-ping telnet
 
 # Install extensions
-RUN docker-php-ext-install pdo_mysql \
- && docker-php-ext-install sockets \
- && docker-php-ext-install pcntl \
- && pecl install memcached-3.1.4 && docker-php-ext-enable memcached \
- && pecl install event && docker-php-ext-enable event
+RUN docker-php-ext-install --ini-name 00-sockets.ini sockets \
+    && docker-php-ext-install pcntl
 
-ARG XDEBUG=0
-
-RUN if [ "$XDEBUG" -eq 1 ]; then \
-    pecl install xdebug-2.7.2 && \
-    docker-php-ext-enable xdebug; \
-fi
+# ext-event
+RUN apt install -y libevent-dev \
+    && pecl install event && docker-php-ext-enable event
 
 # Install composer
 ENV COMPOSER_HOME=/tmp/.composer
